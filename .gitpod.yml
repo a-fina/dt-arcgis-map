@@ -1,0 +1,44 @@
+# Gitpod configuration for Elevation Analysis Java/JSP PWA
+# https://www.gitpod.io/docs/references/gitpod-yml
+
+image:
+  file: Dockerfile
+
+tasks:
+  - name: Setup & Build
+    init: |
+      echo "Installing Java dependencies and building Maven project..."
+      mvn clean install
+    command: |
+      echo "Build completed successfully"
+      echo "Starting Tomcat server on port 8080..."
+
+  - name: Start Tomcat Server
+    command: |
+      mvn tomcat7:run
+
+ports:
+  - port: 8080
+    onOpen: open-browser
+    visibility: public
+  - port: 8443
+    onOpen: ignore
+    visibility: private
+
+vscode:
+  extensions:
+    - redhat.java
+    - vscjava.vscode-maven
+    - esbenp.prettier-vscode
+    - ms-vscode.js-debug
+    - ecmel.vscode-html-css
+
+githubValidation:
+  prebuilds:
+    main: true
+    pullRequests: false
+    branches: true
+
+env:
+  MAVEN_OPTS: "-Xmx512m -XX:+UseG1GC"
+  JAVA_TOOL_OPTIONS: "-Xmx512m"
