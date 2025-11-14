@@ -1,0 +1,38 @@
+stages:
+  - build
+  - test
+  - docker
+
+variables:
+  REGISTRY: registry.gitlab.com
+  IMAGE_TAG: $CI_COMMIT_SHA
+
+cache:
+  paths:
+    - .m2/repository/
+
+build:maven:
+  stage: build
+  image: maven:3.9-eclipse-temurin-11
+  script:
+    - mvn clean compile
+  artifacts:
+    paths:
+      - target/
+    expire_in: 1 hour
+
+test:unit:
+  stage: test
+  image: maven:3.9-eclipse-temurin-11
+  script:
+    - mvn test
+
+docker:build:
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t arcgis-map:$CI_COMMIT_SHA -t arcgis-map:latest .
+  only:
+    - main
